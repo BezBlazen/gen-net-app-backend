@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GENNETAPP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+
+<body class="vh-100 d-flex flex-column overflow-hidden">
+    <nav class="navbar navbar-light bg-light border-bottom">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">GENNETAPP</a>
+            <a class="nav-link" href="/about">About</a>
+            <div class="ms-auto">
+                <button id="signIn" type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#modalFormSignIn">SignIn</button>
+<!--                <button id="signOut" type="button" class="btn btn-light">SignOut</button>-->
+                <div id="profileMenu" class="dropdown">
+                    <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                        Profile
+                    </button>
+<!--                    TODO что-то меню за окно уходит-->
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+<!--                        <li><a class="dropdown-item" href="#">Action</a></li>-->
+<!--                        <li><a class="dropdown-item" href="#">Another action</a></li>-->
+                        <li><a class="dropdown-item" href="#" id="signOut">SignOut</a></li>
+                    </ul>
+                </div>
+            </div>
+
+<!--            <div class="dropdown">-->
+<!--                <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">-->
+<!--                    P-->
+<!--                </button>-->
+<!--                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">-->
+<!--                    <li><a class="dropdown-item" href="#">Action</a></li>-->
+<!--                    <li><a class="dropdown-item" href="#">Another action</a></li>-->
+<!--                    <li><a class="dropdown-item" href="#">Something else here</a></li>-->
+<!--                </ul>-->
+<!--            </div>-->
+        </div>
+    </nav>
+    <div class="flex-fill d-flex flex-row overflow-hidden">
+        <div class="flex-shrink-0 p-3 bg-light border-end">
+            <ul id="bodyLeftMenu" class="list-unstyled ps-0">
+                <li class="nav-item">
+                    <a class="nav-link active" href="/dashboard">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/persons">Persons</a>
+                </li>
+                <li class="border-top my-3"></li>
+            </ul>
+        </div>
+        <div id="bodyContainer" class="flex-fill overflow-hidden">
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalFormSignIn" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form>
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Login</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group row p-1">
+                            <label for="username" class="col-sm-2 col-form-label">Username</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="username" name="username">
+                            </div>
+                        </div>
+                        <div class="form-group row p-1">
+                            <label for="password" class="col-sm-2 col-form-label">Password</label>
+                            <div class="col-sm-10">
+                                <input type="password" class="form-control" id="password" name="password">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary" >Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+    <script type="application/javascript">
+        // -------------------------------------------
+        // On storage changed
+        function handleStorageEvent(event) {
+            console.log('Storage event detected:', event);
+
+            if (event.key === 'username') {
+                updateAuthState();
+            }
+        }
+
+        window.addEventListener('storage', handleStorageEvent);
+
+        function updateSessionStorage(key, newValue) {
+            if (newValue == null) {
+                removeSessionStorage(key);
+                return;
+            }
+
+            const oldValue = sessionStorage.getItem(key);
+            sessionStorage.setItem(key, newValue);
+
+            const storageEvent = new StorageEvent('storage', {
+                key: key,
+                oldValue: oldValue,
+                newValue: newValue,
+                url: window.location.href,
+                storageArea: sessionStorage
+            });
+
+            window.dispatchEvent(storageEvent);
+        }
+        function removeSessionStorage(key) {
+            const oldValue = sessionStorage.getItem(key);
+            sessionStorage.removeItem(key);
+
+            const storageEvent = new StorageEvent('storage', {
+                key: key,
+                oldValue: oldValue,
+                newValue: null,
+                url: window.location.href,
+                storageArea: sessionStorage
+            });
+
+            window.dispatchEvent(storageEvent);
+        }
+        //     console.log("storage");
+        //     updateAuthState();
+        //     // if (event.key != 'now') return;
+        //     // alert(event.key + ':' + event.newValue + " at " + event.url);
+        // });
+        // On storage changed
+        // -------------------------------------------
+        // Utils
+        function getCookie(name) {
+            const fullCookieString = '; ' + document.cookie;
+            const splitCookie = fullCookieString.split('; ' + name + '=');
+            return splitCookie.length === 2 ? splitCookie.pop().split(';').shift() : null;
+        }
+        // Ufils
+        // -------------------------------------------
+        // Fetch page by url and set to div #bodyContainer pody
+        function updateBodyContainer(url) {
+            let pageUrl = "/page" + (url == "/" ? "" : url);
+            fetch(pageUrl)
+                .then(function(response) {
+                    return response.text();
+                })
+                .then(function(body) {
+                    window.history.pushState(null, null, url);
+                    document.querySelector('#bodyContainer').innerHTML = body;
+                    document.querySelectorAll("#bodyContainer > script").forEach(function(script) {
+                        eval(script.innerHTML)
+                    });
+                });
+        };
+
+        // Fetch first page by loading site
+        document.addEventListener("DOMContentLoaded", function(e) {
+            let startPath = window.location.pathname == "/" ? "/dashboard" : window.location.pathname;
+            updateBodyContainer(startPath);
+            updateAuthState();
+            console.log("DOMContentLoaded");
+        });
+        // Body top menu items add event listener
+        function onClickBodyMenuItem(e, bodyNavItemLink) {
+            // Stop reload page
+            e.preventDefault();
+
+            // // Set active menu item
+            document.querySelectorAll("#bodyLeftMenu > .nav-item > .nav-link").forEach(function(item) {
+                item.classList.remove("active");
+            });
+            bodyNavItemLink.classList.add("active");
+
+            // Update container content
+            let href = bodyNavItemLink.getAttribute("href");
+            updateBodyContainer(href);
+        }
+
+        document.querySelectorAll("#bodyLeftMenu > .nav-item > .nav-link").forEach(function(bodyNavItemLink) {
+            console.log(bodyNavItemLink);
+            bodyNavItemLink.addEventListener("click", (event) => { onClickBodyMenuItem(event, bodyNavItemLink)});
+        });
+        // -------------------------------------------
+        // Update Auth State
+        function updateAuthState() {
+            const username = sessionStorage.getItem("username");
+            console.log("updateAuthState username: " + username);
+            const btnSignIn = document.getElementById("signIn");
+            const divProfileMenu = document.getElementById("profileMenu");
+
+            if (username == null) {
+                btnSignIn.classList.remove("d-none");
+                divProfileMenu.classList.add("d-none");
+            } else {
+                const btnProfileMenu = divProfileMenu.querySelector("button");
+                btnProfileMenu.textContent = username;
+                btnSignIn.classList.add("d-none");
+                divProfileMenu.classList.remove("d-none");
+            }
+        };
+        // Update Auth State
+        // -------------------------------------------
+        // Update profile
+        // function updateProfile() {
+        //     fetch('/api/auth/profile')
+        //         .then(res => res.json())
+        //         .then(json => {
+        //             console.log("username: " + json.username);
+        //             updateAuthState(json.username);
+        //         })
+        //         .catch(error => {
+        //             // TODO: Ошибки чтения профиля
+        //             console.log("err:");
+        //             console.log(error);
+        //             updateAuthState(null);
+        //         });
+        // };
+        // Update profile
+        // -------------------------------------------
+        // Sign In
+        const modalFormSignIn = document.getElementById("modalFormSignIn");
+        const formLogin = modalFormSignIn.querySelector("form");
+        formLogin.addEventListener('submit', e => {
+            e.preventDefault();
+            const formData = new FormData(formLogin);
+            const data = Object.fromEntries(formData);
+            console.log(data);
+            fetch("/api/auth/signin", {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)})
+                    // body: data})
+                .then(res => res.json())
+                .then(json => {
+                    // TODO: Успешная авторизация
+                    bootstrap.Modal.getInstance(modalFormSignIn).hide();
+                    console.log("username: " + json.username);
+                    updateSessionStorage("username", json.username);
+                    // sessionStorage.setItem("username", json.username);
+                    // updateAuthState(json.username);
+                })
+                .catch(error => {
+                    // TODO: Ошибки авторизации
+                    // console.log("Some error" + e);
+                    console.log("err:");
+                    console.log(error);
+                    updateSessionStorage("username", null);
+                    // sessionStorage.removeItem("username");
+                });
+        })
+        // Sign In
+        // -------------------------------------------
+        // Sign Out
+        const btnSignOut = document.getElementById("signOut");
+        btnSignOut.addEventListener('click', e => {
+            e.preventDefault();
+            // sessionStorage.removeItem("username");
+            updateSessionStorage("username", null);
+            fetch("/api/auth/signout", {
+                method: 'POST'});
+        })
+        // Sign Out
+        // -------------------------------------------
+    </script>
+</body>
+</html>

@@ -13,7 +13,7 @@
             <a class="navbar-brand" href="/">GENNETAPP</a>
             <a class="nav-link" href="/about">About</a>
             <div class="ms-auto">
-                <button id="signIn" type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#modalFormSignIn">SignIn</button>
+                <button id="signIn" type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#modalFormSign">SignIn</button>
 <!--                <button id="signOut" type="button" class="btn btn-light">SignOut</button>-->
                 <div id="profileMenu" class="dropdown">
                     <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
@@ -56,33 +56,68 @@
         </div>
     </div>
 
-    <div class="modal fade" id="modalFormSignIn" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal fade" id="modalFormSign" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form>
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Login</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-header border-bottom-0 p-0">
+                    <div class="nav nav-tabs nav-fill w-100" id="nav-tab" role="tablist">
+                        <button class="nav-link active" id="nav-sign-in-tab" data-bs-toggle="tab" data-bs-target="#nav-sign-in" type="button" role="tab" aria-controls="nav-sign-in" aria-selected="true">SignIn</button>
+                        <button class="nav-link" id="nav-sign-up-tab" data-bs-toggle="tab" data-bs-target="#nav-sign-up" type="button" role="tab" aria-controls="nav-sign-up" aria-selected="false">Register</button>
                     </div>
-                    <div class="modal-body">
-                        <div class="form-group row p-1">
-                            <label for="username" class="col-sm-2 col-form-label">Username</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="username" name="username">
+                </div>
+                <div class="tab-content" id="nav-tabContent">
+                    <div class="tab-pane fade show active" id="nav-sign-in" role="tabpanel" aria-labelledby="nav-sign-in-tab">
+                        <form id="formSignIn">
+                            <div class="modal-body">
+                                <div class="form-group row p-1">
+                                    <label for="username" class="col-sm-2 col-form-label">Username</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="username" name="username">
+                                    </div>
+                                </div>
+                                <div class="form-group row p-1">
+                                    <label for="password" class="col-sm-2 col-form-label">Password</label>
+                                    <div class="col-sm-10">
+                                        <input type="password" class="form-control" id="password" name="password">
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group row p-1">
-                            <label for="password" class="col-sm-2 col-form-label">Password</label>
-                            <div class="col-sm-10">
-                                <input type="password" class="form-control" id="password" name="password">
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary" >SignIn</button>
                             </div>
-                        </div>
+                        </form>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary" >Submit</button>
+                    <div class="tab-pane fade" id="nav-sign-up" role="tabpanel" aria-labelledby="nav-sign-up-tab">
+                        <form id="formSignUp">
+                            <div class="modal-body">
+                                <div class="form-group row p-1">
+                                    <label for="username" class="col-sm-2 col-form-label">Username</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="username" name="username">
+                                    </div>
+                                </div>
+                                <div class="form-group row p-1">
+                                    <label for="password" class="col-sm-2 col-form-label">Password</label>
+                                    <div class="col-sm-10">
+                                        <input type="password" class="form-control" id="password" name="password">
+                                    </div>
+                                </div>
+<!--                                TODO: check confirm password-->
+<!--                                <div class="form-group row p-1">-->
+<!--                                    <label for="confirm_password" class="col-sm-2 col-form-label">Confirm</label>-->
+<!--                                    <div class="col-sm-10">-->
+<!--                                        <input type="password" class="form-control" id="confirm_password" name="confirm_password">-->
+<!--                                    </div>-->
+<!--                                </div>-->
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary" >Register</button>
+                            </div>
+                        </form>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
@@ -230,24 +265,24 @@
         // Update profile
         // -------------------------------------------
         // Sign In
-        const modalFormSignIn = document.getElementById("modalFormSignIn");
-        const formLogin = modalFormSignIn.querySelector("form");
-        formLogin.addEventListener('submit', e => {
+        const modalFormSign = document.getElementById("modalFormSign");
+        const formSignIn = document.getElementById("formSignIn");
+        formSignIn.addEventListener('submit', e => {
             e.preventDefault();
-            const formData = new FormData(formLogin);
+            const formData = new FormData(formSignIn);
             const data = Object.fromEntries(formData);
             console.log(data);
             fetch("/api/auth/signin", {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(data)})
-                    // body: data})
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)})
+                // body: data})
                 .then(res => res.json())
                 .then(json => {
                     // TODO: Успешная авторизация
-                    bootstrap.Modal.getInstance(modalFormSignIn).hide();
                     console.log("username: " + json.username);
                     updateSessionStorage("username", json.username);
+                    bootstrap.Modal.getInstance(modalFormSign).hide();
                     // sessionStorage.setItem("username", json.username);
                     // updateAuthState(json.username);
                 })
@@ -261,6 +296,36 @@
                 });
         })
         // Sign In
+        // -------------------------------------------
+        // Sign Up
+        const formSignUp = document.getElementById("formSignUp");
+        formSignUp.addEventListener('submit', e => {
+            e.preventDefault();
+            const formData = new FormData(formSignUp);
+            const data = Object.fromEntries(formData);
+            console.log(data);
+            fetch("/api/auth/signup", {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)})
+                // body: data})
+                .then(res => res.json())
+                .then(json => {
+                    // TODO: Успешная авторизация
+                    console.log("username: " + json.username);
+                    formSignIn.querySelector("#username").value = formSignUp.querySelector("#username").value;
+                    formSignIn.querySelector("#password").value = '';
+                    const signInTab = document.querySelector("#nav-sign-in-tab");
+                    const tab = new bootstrap.Tab(signInTab);
+                    tab.show();
+                })
+                .catch(error => {
+                    // TODO: Ошибки авторизации
+                    console.log("err:");
+                    console.log(error);
+                });
+        })
+        // Sign Up
         // -------------------------------------------
         // Sign Out
         const btnSignOut = document.getElementById("signOut");

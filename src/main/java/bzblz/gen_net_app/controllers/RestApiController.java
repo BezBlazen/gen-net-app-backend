@@ -1,11 +1,13 @@
 package bzblz.gen_net_app.controllers;
 
 import bzblz.gen_net_app.dto.UserDto;
+import bzblz.gen_net_app.exceptions.AlreadyExistsException;
 import bzblz.gen_net_app.model.Person;
 import bzblz.gen_net_app.model.User;
 import bzblz.gen_net_app.model.UserRole;
 import bzblz.gen_net_app.security.UDetails;
 import bzblz.gen_net_app.services.PersonsService;
+import bzblz.gen_net_app.services.UService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -36,6 +38,7 @@ public class RestApiController {
     private final AuthenticationManager authenticationManager;
     private final SecurityContextRepository securityContextRepository;
     private final PersonsService personsService;
+    private final UService uService;
 
     @GetMapping("/hi")
     public String hi() {
@@ -85,7 +88,7 @@ public class RestApiController {
     }
 
     @PostMapping(path = "/auth/signin", consumes = "application/json")
-    public UserDto signIn(@RequestBody User user, HttpServletRequest request, HttpServletResponse response) {
+    public UserDto authSignIn(@RequestBody User user, HttpServletRequest request, HttpServletResponse response) {
         System.out.println("User: " + user.toString());
         UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(
                 user.getUsername(), user.getPassword());
@@ -111,6 +114,16 @@ public class RestApiController {
             SecurityContextHolder.setContext(context);
             securityContextRepository.saveContext(context, request, response);
             return new UserDto(((UDetails)context.getAuthentication().getPrincipal()).getUser());
+        }
+        return null;
+    }
+    @PostMapping(path = "/auth/signup", consumes = "application/json")
+    public UserDto authSignUp(@RequestBody User user, HttpServletRequest request, HttpServletResponse response) {
+        try {
+            uService.add(user);
+            return new UserDto(user);
+        } catch (AlreadyExistsException e) {
+            response.setStatus(HttpServletResponse.SC_CONFLICT);
         }
         return null;
     }

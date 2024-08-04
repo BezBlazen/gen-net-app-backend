@@ -1,7 +1,10 @@
 package bzblz.gen_net_app.model;
 
+import bzblz.gen_net_app.validators.UserRolePattern;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @Entity
@@ -22,7 +25,8 @@ public class User {
     @Column(name = "password")
     private String password;
 
-    @NotEmpty
+    @NotNull
+    @UserRolePattern(regexp = "ROLE_ADMIN|ROLE_USER")
     @Column(name = "user_role")
     @Enumerated(EnumType.STRING)
     private UserRole userRole;

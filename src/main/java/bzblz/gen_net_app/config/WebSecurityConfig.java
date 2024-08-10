@@ -1,11 +1,10 @@
 package bzblz.gen_net_app.config;
 
-import bzblz.gen_net_app.services.UDetailsService;
+import bzblz.gen_net_app.services.AccountsDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -24,11 +23,11 @@ import org.springframework.security.web.context.SecurityContextRepository;
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig {
-    private final UDetailsService uDetailsService;
+    private final AccountsDetailsService accountsDetailsService;
 
     @Autowired
-    public WebSecurityConfig(UDetailsService uDetailsService) {
-        this.uDetailsService = uDetailsService;
+    public WebSecurityConfig(AccountsDetailsService accountsDetailsService) {
+        this.accountsDetailsService = accountsDetailsService;
     }
 
     @Bean

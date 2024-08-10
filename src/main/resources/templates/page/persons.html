@@ -52,7 +52,6 @@
 
 </div>
 <script type="application/javascript">
-    console.log("Hi persons");
     function generateTableHead(table, data) {
         let thead = table.createTHead();
         let row = thead.insertRow();
@@ -75,14 +74,20 @@
             }
         }
     }
-    fetch("/api/persons")
+    const getPersonsUrl = '/api/persons';
+    let getPersonsUrlParams = '';
+    if (document.getElementById("schemasMenu").value !== '') {
+        getPersonsUrlParams = '?' + new URLSearchParams({ schema_id: document.getElementById("schemasMenu").value}).toString();
+    }
+    console.log("get: " + getPersonsUrl + getPersonsUrlParams);
+    fetch(getPersonsUrl + getPersonsUrlParams)
         .then(res => res.json())
         .then(json => {
-            // console.log(json)
+            if (json.length == 0)
+                return
             let mountains = json;
             let table = document.querySelector("#personsTable");
             let data = Object.keys(mountains[0]);
-            // console.log(Object.keys(mountains[0]));
             generateTable(table, mountains); // generate the table first
             generateTableHead(table, data); // then the head
         });

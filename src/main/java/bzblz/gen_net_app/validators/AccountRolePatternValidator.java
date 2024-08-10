@@ -7,11 +7,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-public class UserRolePatternValidator implements ConstraintValidator<UserRolePattern, Enum<?>> {
+public class AccountRolePatternValidator implements ConstraintValidator<AccountRolePattern, Enum<?>> {
     private Pattern pattern;
 
     @Override
-    public void initialize(UserRolePattern annotation) {
+    public void initialize(AccountRolePattern annotation) {
         try {
             pattern = Pattern.compile(annotation.regexp());
         } catch (PatternSyntaxException e) {

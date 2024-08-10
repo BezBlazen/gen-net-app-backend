@@ -20,7 +20,9 @@ public class PersonsService {
     public PersonsService(PersonsRepository personsRepository) {
         this.personsRepository = personsRepository;
     }
-
+    public List<Person> findByProjectId(Integer id) {
+        return personsRepository.findByProjectId(id);
+    }
     public List<Person> findAll() {
         return personsRepository.findAll();
     }

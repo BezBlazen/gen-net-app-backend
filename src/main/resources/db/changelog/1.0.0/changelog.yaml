@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - include:
+      relativeToChangelogFile: true
+      file: 2024-08-11-create-table-account.sql
+  - include:
+      relativeToChangelogFile: true
+      file: 2024-08-11-create-table-project.sql
+  - include:
+      relativeToChangelogFile: true
+      file: 2024-08-11-create-table-person.sql

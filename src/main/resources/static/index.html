@@ -27,25 +27,19 @@
                     </ul>
                 </div>
             </div>
-
-<!--            <div class="dropdown">-->
-<!--                <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">-->
-<!--                    P-->
-<!--                </button>-->
-<!--                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">-->
-<!--                    <li><a class="dropdown-item" href="#">Action</a></li>-->
-<!--                    <li><a class="dropdown-item" href="#">Another action</a></li>-->
-<!--                    <li><a class="dropdown-item" href="#">Something else here</a></li>-->
-<!--                </ul>-->
-<!--            </div>-->
         </div>
     </nav>
     <div class="flex-fill d-flex flex-row overflow-hidden">
-        <div class="flex-shrink-0 p-3 bg-light border-end">
-            <ul id="bodyLeftMenu" class="list-unstyled ps-0">
-                <li class="nav-item">
-                    <a class="nav-link active" href="/dashboard">Dashboard</a>
-                </li>
+        <div class="flex-shrink-0 p-1 bg-light border-end">
+            <div id="schemasMenuDiv" class="form-floating p-1">
+                <select class="form-select shadow-none" id="schemasMenu" disabled>
+                </select>
+                <label for="schemasMenu">Schema</label>
+            </div>
+            <ul id="bodyLeftMenu" class="nav flex-column">  <!--list-unstyled ps-0-->
+<!--                <li class="nav-item">-->
+<!--                    <a class="nav-link active" href="/dashboard">Dashboard</a>-->
+<!--                </li>-->
                 <li class="nav-item">
                     <a class="nav-link active" href="/persons">Persons</a>
                 </li>
@@ -131,6 +125,7 @@
 
             if (event.key === 'username') {
                 updateAuthState();
+                updateSchemas();
             }
         }
 
@@ -186,7 +181,15 @@
         // -------------------------------------------
         // Fetch page by url and set to div #bodyContainer pody
         function updateBodyContainer(url) {
-            let pageUrl = "/page" + (url == "/" ? "" : url);
+            let path = '';
+            if (url == null)
+                path = window.location.pathname;
+            else if (url == "/")
+                path = "";
+            else
+                path = url;
+
+            let pageUrl = "/page" + path;
             fetch(pageUrl)
                 .then(function(response) {
                     return response.text();
@@ -203,12 +206,14 @@
         // Fetch first page by loading site
         document.addEventListener("DOMContentLoaded", function(e) {
             let startPath = window.location.pathname == "/" ? "/dashboard" : window.location.pathname;
-            updateBodyContainer(startPath);
             updateAuthState();
+            updateSchemas();
+            updateBodyContainer(startPath);
             console.log("DOMContentLoaded");
         });
-        // Body top menu items add event listener
-        function onClickBodyMenuItem(e, bodyNavItemLink) {
+        // -------------------------------------------
+        // Body left menu items add event listener
+        function onClickBodyLeftMenuItem(e, bodyNavItemLink) {
             // Stop reload page
             e.preventDefault();
 
@@ -225,8 +230,49 @@
 
         document.querySelectorAll("#bodyLeftMenu > .nav-item > .nav-link").forEach(function(bodyNavItemLink) {
             console.log(bodyNavItemLink);
-            bodyNavItemLink.addEventListener("click", (event) => { onClickBodyMenuItem(event, bodyNavItemLink)});
+            bodyNavItemLink.addEventListener("click", (event) => { onClickBodyLeftMenuItem(event, bodyNavItemLink)});
         });
+        // -------------------------------------------
+        // Update Schemas
+        function updateSchemas() {
+            console.log("updateSchemas");
+            const schemasMenu = document.getElementById('schemasMenu');
+            let option = document.createElement("option");
+            option.innerHTML = 'Default';
+            option.value = '';
+            option.selected = true;
+            schemasMenu.appendChild(option);
+            schemasMenu.disabled = true;
+
+            // .innerHTML += ('<li>'+word+'</li>');
+            fetch("/api/schemas")
+                .then(res => res.json())
+                .then(json => {
+                    schemasMenu.querySelectorAll("option").forEach(e => e.remove());
+
+                    for (let element of json) {
+                        console.log(element.title);
+                        let option = document.createElement("option");
+                        option.innerHTML = element.title;
+                        option.value = element.id;
+                        option.selected = true;
+                        schemasMenu.appendChild(option);
+                    }
+                    schemasMenu.disabled = false;
+                    console.log(json);
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        };
+        // Update Schemas
+        // -------------------------------------------
+        // On select Schemas
+        document.getElementById('schemasMenu').addEventListener("change", (event) => {
+            console.log("change");
+            updateBodyContainer();
+        });
+        // On select Schemas
         // -------------------------------------------
         // Update Auth State
         function updateAuthState() {
@@ -282,6 +328,8 @@
                     // TODO: Успешная авторизация
                     console.log("username: " + json.username);
                     updateSessionStorage("username", json.username);
+                    updateSchemas();
+                    updateBodyContainer();
                     bootstrap.Modal.getInstance(modalFormSign).hide();
                     // sessionStorage.setItem("username", json.username);
                     // updateAuthState(json.username);
@@ -292,6 +340,8 @@
                     console.log("err:");
                     console.log(error);
                     updateSessionStorage("username", null);
+                    updateSchemas();
+                    updateBodyContainer();
                     // sessionStorage.removeItem("username");
                 });
         })
@@ -333,6 +383,8 @@
             e.preventDefault();
             // sessionStorage.removeItem("username");
             updateSessionStorage("username", null);
+            updateSchemas();
+            updateBodyContainer();
             fetch("/api/auth/signout", {
                 method: 'POST'});
         })

@@ -1,40 +1,44 @@
 package bzblz.gen_net_app.model;
 
-import bzblz.gen_net_app.validators.UserRolePattern;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.List;
 
 @Entity
-@Table(name = "users")
-public class User {
+@Table(name = "account")
+@Getter
+@Setter
+public class Account {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @NotEmpty(message = "Can't be empty")
-    @Size(min = 6, max = 20, message = "Allowed length from 6 to 20")
+//    @NotEmpty(message = "Can't be empty")
+//    @Size(min = 6, max = 20, message = "Allowed length from 6 to 20")
     @Column(name = "username")
     private String username;
 
-    @NotEmpty(message = "Can't be empty")
-    @Size(min = 6, max = 64, message = "Allowed length from 6 to 64")
+//    @NotEmpty(message = "Can't be empty")
+//    @Size(min = 6, max = 64, message = "Allowed length from 6 to 64")
     @Column(name = "password")
     private String password;
 
-    @NotNull
-    @UserRolePattern(regexp = "ROLE_ADMIN|ROLE_USER")
-    @Column(name = "user_role")
+//    @NotNull
+//    @UserRolePattern(regexp = "ROLE_ADMIN|ROLE_USER")
+    @Column(name = "account_role")
     @Enumerated(EnumType.STRING)
-    private UserRole userRole;
+    private AccountRole accountRole;
 
-    public User() {
+    @OneToMany(mappedBy="account")
+    private List<Project> projects;
+
+    public Account() {
     }
 
-    public User(String username, String password) {
+    public Account(String username, String password) {
         this.username = username;
         this.password = password;
     }
@@ -63,11 +67,11 @@ public class User {
         this.password = password;
     }
 
-    public UserRole getUserRole() {
-        return userRole;
+    public AccountRole getAccountRole() {
+        return accountRole;
     }
-    public void setUserRole(UserRole userRole) {
-        this.userRole = userRole;
+    public void setAccountRole(AccountRole accountRole) {
+        this.accountRole = accountRole;
     }
     @Override
     public String toString() {
@@ -75,7 +79,7 @@ public class User {
                 "id=" + id +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
-                ", userRole='" + (userRole != null ? userRole.name() : null) + '\'' +
+                ", accountRole='" + (accountRole != null ? accountRole.name() : null) + '\'' +
                 '}';
     }
 }

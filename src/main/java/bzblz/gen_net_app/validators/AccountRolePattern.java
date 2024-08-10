@@ -13,8 +13,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = UserRolePatternValidator.class)
-public @interface UserRolePattern {
+@Constraint(validatedBy = AccountRolePatternValidator.class)
+public @interface AccountRolePattern {
     String regexp();
     String message() default "must match \"{regexp}\"";
     Class<?>[] groups() default {};

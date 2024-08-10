@@ -1,7 +1,7 @@
 package bzblz.gen_net_app.security;
 
 
-import bzblz.gen_net_app.model.User;
+import bzblz.gen_net_app.model.Account;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,26 +9,26 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
-public class UDetails implements UserDetails {
-    private final User user;
+public class AccountsDetails implements UserDetails {
+    private final Account account;
 
-    public UDetails(User user) {
-        this.user = user;
+    public AccountsDetails(Account account) {
+        this.account = account;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority(user.getUserRole().name()));
+        return Collections.singletonList(new SimpleGrantedAuthority(account.getAccountRole().name()));
     }
 
     @Override
     public String getPassword() {
-        return user.getPassword();
+        return account.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return user.getUsername();
+        return account.getUsername();
     }
 
     @Override
@@ -51,7 +51,7 @@ public class UDetails implements UserDetails {
         return true;
     }
 
-    public User getUser() {
-        return user;
+    public Account getAccount() {
+        return account;
     }
 }

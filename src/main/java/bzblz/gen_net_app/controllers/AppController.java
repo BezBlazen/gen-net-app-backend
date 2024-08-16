@@ -18,6 +18,10 @@ public class AppController {
     public String pageDashboard() {
         return "page/dashboard";
     }
+    @GetMapping("/page/projects")
+    public String pageProjects() {
+        return "page/projects";
+    }
     @GetMapping("/page/persons")
     public String pagePersons() {
         return "page/persons";

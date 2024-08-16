@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,6 +28,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -39,31 +41,32 @@ public class RestApiController {
     private final ProjectsService projectsService;
     private final AccountsService accountsService;
 
+    private Optional<Account> getCurrentAccount() {
+        SecurityContext context = SecurityContextHolder.getContext();
+        if (context.getAuthentication() instanceof AnonymousAuthenticationToken) {
+            final String sessionAccountName = StringUtils.isNotBlank(RequestContextHolder.currentRequestAttributes().getSessionId()) ? "_" + RequestContextHolder.currentRequestAttributes().getSessionId() : null;
+            return accountsService.findByUsername(sessionAccountName);
+        } else {
+            return Optional.of(((AccountsDetails)context.getAuthentication().getPrincipal()).getAccount());
+        }
+    }
+    private String getCurrentAccountUsername() {
+        SecurityContext context = SecurityContextHolder.getContext();
+        if (context.getAuthentication() instanceof AnonymousAuthenticationToken) {
+            return StringUtils.isNotBlank(RequestContextHolder.currentRequestAttributes().getSessionId()) ? "_" + RequestContextHolder.currentRequestAttributes().getSessionId() : null;
+        } else {
+            return ((AccountsDetails)context.getAuthentication().getPrincipal()).getAccount().getUsername();
+        }
+    }
+
     @GetMapping("/hi")
     public String hi() {
         return "hi!";
     }
 
     @GetMapping(path = "/auth/profile")
-    public AccountDto getUserProfile(HttpServletResponse response) {
-        System.out.println("SessionId: " + RequestContextHolder.currentRequestAttributes().getSessionId());
-
-        AccountDto accountDto = null;
-        SecurityContext context = SecurityContextHolder.getContext();
-        System.out.println("getName: " + context.getAuthentication().getName());
-//        Cookie cookie = new Cookie("USERNAME", null);
-        if (!(context.getAuthentication() instanceof AnonymousAuthenticationToken)) {
-            accountDto = new AccountDto(((AccountsDetails)context.getAuthentication().getPrincipal()).getAccount());
-
-//            cookie.setValue(userDto.getUsername());
-        } else {
-//            userDto = new UserDto();
-//            userDto.setUsername(RequestContextHolder.currentRequestAttributes().getSessionId());
-//            userDto.setUserRole(UserRole.ROLE_SESSION_USER);
-//            cookie.setMaxAge(0);
-        }
-//        response.addCookie(cookie);
-        return accountDto;
+    public AccountDto getUserProfile() {
+        return new AccountDto(accountsService.findByUsername(getCurrentAccountUsername()).orElse(null));
     }
 
     @GetMapping("/persons")
@@ -86,14 +89,18 @@ public class RestApiController {
 
 //        return new ArrayList<>();
     }
-    @GetMapping("/schemas")
-    public List<Project> getSchemaList() {
-        final SecurityContext context = SecurityContextHolder.getContext();
-        if (context.getAuthentication() instanceof AnonymousAuthenticationToken) {
-            System.out.println("AnonymousAuthenticationToken");
-            return null;
-        } else {
-            return projectsService.findAllByAccountIs(((AccountsDetails)context.getAuthentication().getPrincipal()).getAccount());
+    @GetMapping("/projects")
+    public List<Project> getProjectList() {
+            return projectsService.findAllByAccountIs(getCurrentAccount().orElse(null));
+    }
+    @PostMapping(path = "/projects", consumes = "application/json")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void addProject(@RequestBody Project project) {
+        project.setAccount(getCurrentAccount().orElse(null));
+        try {
+            projectsService.add(project);
+        } catch (AlreadyExistsException e) {
+            System.out.println("addProject error: " + e.getMessage());
         }
     }
     @PostMapping(path = "/persons", consumes = "application/json")
@@ -138,7 +145,7 @@ public class RestApiController {
     @PostMapping(path = "/auth/signup", consumes = "application/json")
     public AccountDto authSignUp(@RequestBody Account account, HttpServletRequest request, HttpServletResponse response) {
         try {
-            accountsService.add(account);
+            accountsService.addUserAccount(account);
             return new AccountDto(account);
         } catch (AlreadyExistsException e) {
             response.setStatus(HttpServletResponse.SC_CONFLICT);

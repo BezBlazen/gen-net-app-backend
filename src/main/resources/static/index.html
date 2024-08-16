@@ -16,13 +16,11 @@
                 <button id="signIn" type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#modalFormSign">SignIn</button>
 <!--                <button id="signOut" type="button" class="btn btn-light">SignOut</button>-->
                 <div id="profileMenu" class="dropdown">
-                    <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuProfileButton" data-bs-toggle="dropdown" aria-expanded="false">
                         Profile
                     </button>
 <!--                    TODO что-то меню за окно уходит-->
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-<!--                        <li><a class="dropdown-item" href="#">Action</a></li>-->
-<!--                        <li><a class="dropdown-item" href="#">Another action</a></li>-->
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuProfileButton">
                         <li><a class="dropdown-item" href="#" id="signOut">SignOut</a></li>
                     </ul>
                 </div>
@@ -31,19 +29,16 @@
     </nav>
     <div class="flex-fill d-flex flex-row overflow-hidden">
         <div class="flex-shrink-0 p-1 bg-light border-end">
-            <div id="schemasMenuDiv" class="form-floating p-1">
-                <select class="form-select shadow-none" id="schemasMenu" disabled>
-                </select>
-                <label for="schemasMenu">Schema</label>
-            </div>
-            <ul id="bodyLeftMenu" class="nav flex-column">  <!--list-unstyled ps-0-->
-<!--                <li class="nav-item">-->
-<!--                    <a class="nav-link active" href="/dashboard">Dashboard</a>-->
-<!--                </li>-->
-                <li class="nav-item">
-                    <a class="nav-link active" href="/persons">Persons</a>
+            <ul id="bodyLeftMenu" class="nav flex-column">
+                <li id="bodyLeftMenuProject" class="dropdown nav-item pt-1 pb-2 border-bottom">
+                    <a class="nav-link d-inline active py-1" href="/projects">Projects</a>
+                    <a id="projectItemDropdownMenu" class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"></a>
+                    <ul class="dropdown-menu" aria-labelledby="projectItemDropdownMenu">
+                    </ul>
+                    <label class="ps-3 d-block d-none"><small class="user-select-none">Project</small></label>
                 </li>
-                <li class="border-top my-3"></li>
+<!--                <li class="border-top my-1"></li>-->
+                <li class="nav-item"><a class="nav-link active" href="/persons">Persons</a></li>
             </ul>
         </div>
         <div id="bodyContainer" class="flex-fill overflow-hidden">
@@ -206,9 +201,10 @@
         // Fetch first page by loading site
         document.addEventListener("DOMContentLoaded", function(e) {
             let startPath = window.location.pathname == "/" ? "/dashboard" : window.location.pathname;
-            updateAuthState();
-            updateSchemas();
-            updateBodyContainer(startPath);
+            updateProfile();
+            // updateAuthState();
+            // updateSchemas();
+            // updateBodyContainer(startPath);
             console.log("DOMContentLoaded");
         });
         // -------------------------------------------
@@ -234,6 +230,7 @@
         });
         // -------------------------------------------
         // Update Schemas
+        /*
         function updateSchemas() {
             console.log("updateSchemas");
             const schemasMenu = document.getElementById('schemasMenu');
@@ -265,49 +262,90 @@
                     console.log(error);
                 });
         };
+         */
         // Update Schemas
         // -------------------------------------------
         // On select Schemas
+        /*
         document.getElementById('schemasMenu').addEventListener("change", (event) => {
             console.log("change");
             updateBodyContainer();
         });
+        */
         // On select Schemas
         // -------------------------------------------
         // Update Auth State
-        function updateAuthState() {
-            const username = sessionStorage.getItem("username");
-            console.log("updateAuthState username: " + username);
+        function updateAuthState(json) {
+            // const username = sessionStorage.getItem("username");
+            console.log("updateAuthState json: " + json);
             const btnSignIn = document.getElementById("signIn");
             const divProfileMenu = document.getElementById("profileMenu");
+            const projectMenu = document.getElementById("bodyLeftMenuProject");
+            const projectItemLabel = projectMenu.querySelector("label");
+            const projectItemLabelText = projectItemLabel.querySelector("small");
+            const projectItemDropdownMenu = projectMenu.querySelector("ul");
 
-            if (username == null) {
-                btnSignIn.classList.remove("d-none");
-                divProfileMenu.classList.add("d-none");
-            } else {
+
+            const username = json != null && json.accountRole == 'ROLE_USER' ? json.username : null;
+            const projects = json != null ? json.projects : null;
+
+            if (username != null) {
                 const btnProfileMenu = divProfileMenu.querySelector("button");
                 btnProfileMenu.textContent = username;
                 btnSignIn.classList.add("d-none");
                 divProfileMenu.classList.remove("d-none");
+                projectMenu.classList.remove("d-none");
+                // projectItem.classList.remove("disabled");
+                // projectItemDropdownMenu.classList.remove("d-none");
+            } else {
+                btnSignIn.classList.remove("d-none");
+                divProfileMenu.classList.add("d-none");
+                projectMenu.classList.add("d-none");
+                // projectItem.classList.add("disabled");
+                // projectItemDropdownMenu.classList.add("d-none");
+            }
+            projectItemDropdownMenu.innerHTML = "";
+            let firstProject = null;
+            if (projects != null) {
+                console.log("updateAuthState projects: " + projects);
+                for (let element of projects) {
+                    console.log(element.title);
+                    if (firstProject == null)
+                        firstProject = element;
+                    let a = document.createElement("a");
+                    a.innerHTML = element.title;
+                    a.dataset.id = element.id;
+                    a.classList.add("dropdown-item");
+                    let li = document.createElement("li");
+                    li.appendChild(a);
+                    projectItemDropdownMenu.appendChild(li);
+                }
+            }
+            if (firstProject == null) {
+                projectItemLabel.classList.add("d-none");
+            } else {
+                projectItemLabelText.innerText = firstProject.title;
+                projectItemLabelText.dataset.id = firstProject.id;
+                projectItemLabel.classList.remove("d-none");
             }
         };
         // Update Auth State
         // -------------------------------------------
         // Update profile
-        // function updateProfile() {
-        //     fetch('/api/auth/profile')
-        //         .then(res => res.json())
-        //         .then(json => {
-        //             console.log("username: " + json.username);
-        //             updateAuthState(json.username);
-        //         })
-        //         .catch(error => {
-        //             // TODO: Ошибки чтения профиля
-        //             console.log("err:");
-        //             console.log(error);
-        //             updateAuthState(null);
-        //         });
-        // };
+        function updateProfile() {
+            fetch('/api/auth/profile')
+                .then(res => res.json())
+                .then(json => {
+                    console.log("json: " + json);
+                    updateAuthState(json);
+                })
+                .catch(error => {
+                    // TODO: Ошибки чтения профиля
+                    console.log("err:");
+                    console.log(error);
+                    updateAuthState(null);
+                });
+        };
         // Update profile
         // -------------------------------------------
         // Sign In
@@ -327,9 +365,10 @@
                 .then(json => {
                     // TODO: Успешная авторизация
                     console.log("username: " + json.username);
-                    updateSessionStorage("username", json.username);
-                    updateSchemas();
-                    updateBodyContainer();
+                    // updateSessionStorage("username", json.username);
+                    // updateSchemas();
+                    // updateBodyContainer();
+                    updateProfile();
                     bootstrap.Modal.getInstance(modalFormSign).hide();
                     // sessionStorage.setItem("username", json.username);
                     // updateAuthState(json.username);
@@ -339,9 +378,10 @@
                     // console.log("Some error" + e);
                     console.log("err:");
                     console.log(error);
-                    updateSessionStorage("username", null);
-                    updateSchemas();
-                    updateBodyContainer();
+                    updateProfile();
+                    // updateSessionStorage("username", null);
+                    // updateSchemas();
+                    // updateBodyContainer();
                     // sessionStorage.removeItem("username");
                 });
         })
@@ -381,12 +421,16 @@
         const btnSignOut = document.getElementById("signOut");
         btnSignOut.addEventListener('click', e => {
             e.preventDefault();
-            // sessionStorage.removeItem("username");
-            updateSessionStorage("username", null);
-            updateSchemas();
-            updateBodyContainer();
             fetch("/api/auth/signout", {
-                method: 'POST'});
+                method: 'POST'})
+                .then(res => {
+                    updateProfile();
+                    updateBodyContainer("/");
+                })
+                .catch(err => {
+                    updateProfile();
+                    updateBodyContainer("/");
+                });
         })
         // Sign Out
         // -------------------------------------------

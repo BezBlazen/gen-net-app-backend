@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface ProjectsRepository extends JpaRepository<Project, Integer> {
     List<Project> findAllByAccountIs(Account account);
+    List<Project> findAllByAccount(Account account);
 }

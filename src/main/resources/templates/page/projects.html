@@ -1,0 +1,109 @@
+<div class="h-100 d-flex flex-column">
+    <nav class="navbar navbar-light bg-light p-0 border-bottom">
+        <div class="btn-group me-2" role="group" aria-label="First group">
+            <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#modalFormAddProject">Add</button>
+        </div>
+    </nav>
+    <div class="flex-fill overflow-auto">
+        <table id="ProjectsTable" class="table"></table>
+    </div>
+    <div class="modal fade" id="modalFormAddProject" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form>
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Add Project</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group row p-1">
+                            <label for="title" class="col-sm-2 col-form-label">Title</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="title" name="title">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary" >Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script type="application/javascript">
+    function generateTableHead(table, data) {
+        let thead = table.createTHead();
+        let row = thead.insertRow();
+        for (let key of data) {
+            let th = document.createElement("th");
+            let text = document.createTextNode(key);
+            th.appendChild(text);
+            row.appendChild(th);
+
+        }
+    }
+
+    function generateTable(table, data) {
+        for (let element of data) {
+            let row = table.insertRow();
+            for (key in element) {
+                let cell = row.insertCell();
+                let text = document.createTextNode(element[key]);
+                cell.appendChild(text);
+            }
+        }
+    }
+
+    function updatePageProjects() {
+        const getProjectsUrl = '/api/projects';
+        let getProjectsUrlParams = '';
+        console.log("get: " + getProjectsUrl + getProjectsUrlParams);
+        fetch(getProjectsUrl + getProjectsUrlParams)
+            .then(res => res.json())
+            .then(json => {
+                if (json.length == 0)
+                    return
+                let mountains = json;
+                let table = document.querySelector("#ProjectsTable");
+                table.innerHTML = "";
+                let data = Object.keys(mountains[0]);
+                generateTable(table, mountains); // generate the table first
+                generateTableHead(table, data); // then the head
+            });
+    }
+    updatePageProjects();
+
+    // if (document.getElementById("schemasMenu").value !== '') {
+    //     getProjectsUrlParams = '?' + new URLSearchParams({ schema_id: document.getElementById("schemasMenu").value}).toString();
+    // }
+
+
+    const modalFormAddProject = document.getElementById("modalFormAddProject");
+    const formAddProject = modalFormAddProject.querySelector("form");
+    formAddProject.addEventListener('submit', e => {
+        e.preventDefault();
+        const formData = new FormData(formAddProject);
+        const data = Object.fromEntries(formData);
+        fetch("/api/projects", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        }).then(res => {
+            if (res.status == 201) {
+                const modal = bootstrap.Modal.getInstance(modalFormAddProject)
+                modal.hide();
+                updateProfile();
+                updatePageProjects();
+            } else {
+                alert("Error");
+            }
+            // console.log("res:");
+            // console.log(res);
+        }).catch(error => {console.log("err:"); console.log(error);});
+    })
+</script>

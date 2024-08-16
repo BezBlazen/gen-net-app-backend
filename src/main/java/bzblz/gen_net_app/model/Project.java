@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Cascade;
 
 @Entity
 @Table(name = "project")
@@ -27,5 +28,20 @@ public class Project {
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "account_id", referencedColumnName = "id")
+//    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
     private Account account;
+
+    public Project(String title, Account account) {
+        this.title = title;
+        this.account = account;
+    }
+
+    @Override
+    public String toString() {
+        return "Project{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", account=" + account +
+                '}';
+    }
 }

@@ -31,8 +31,13 @@ public class AppController {
         model.addAttribute("route", "/about");
         return "page/about";
     }
+    @GetMapping("/page/metawidget")
+    public String metawidget() {
+        return "page/metawidget";
+    }
     @GetMapping("/hello")
     public String hello() {
         return "hello";
     }
+
 }

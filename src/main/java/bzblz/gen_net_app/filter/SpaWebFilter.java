@@ -57,6 +57,8 @@ public class SpaWebFilter extends OncePerRequestFilter {
                 !path.endsWith("jpg") &&
                 !path.endsWith("jpeg") &&
                 !path.endsWith("gif") &&
+                !path.endsWith("svg") &&
+                !path.endsWith("js") &&
                 !path.endsWith("png")) {
             log.info("SpaWebFilter forwarding to /index.html from path: " + path);
             request.getRequestDispatcher("/index.html").forward(request, response);

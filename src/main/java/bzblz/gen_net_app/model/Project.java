@@ -18,7 +18,7 @@ public class Project {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
 //    @NotEmpty(message = "Name should not be empty")
 //    @Size(min = 2, max = 20, message = "Name should be between 2 and 30 characters")

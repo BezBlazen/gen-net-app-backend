@@ -1,0 +1,108 @@
+package bzblz.gen_net_app.controllers;
+
+import bzblz.gen_net_app.dto.AccountDto;
+import bzblz.gen_net_app.exceptions.AlreadyExistsException;
+import bzblz.gen_net_app.model.Account;
+import bzblz.gen_net_app.model.Person;
+import bzblz.gen_net_app.model.Project;
+import bzblz.gen_net_app.security.AccountDetails;
+import bzblz.gen_net_app.services.PersonService;
+import bzblz.gen_net_app.services.AccountService;
+import bzblz.gen_net_app.services.ProjectService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/api/v1")
+@AllArgsConstructor
+@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
+public class ApiController {
+    private final AuthenticationManager authenticationManager;
+    private final PersonService personService;
+    private final ProjectService projectService;
+    private final AccountService accountService;
+
+    private Optional<Account> getCurrentAccount() {
+        SecurityContext context = SecurityContextHolder.getContext();
+        if (context.getAuthentication() instanceof AnonymousAuthenticationToken) {
+            final String sessionAccountName = StringUtils.isNotBlank(RequestContextHolder.currentRequestAttributes().getSessionId()) ? "_" + RequestContextHolder.currentRequestAttributes().getSessionId() : null;
+            return accountService.findByUsername(sessionAccountName);
+        } else {
+            return Optional.of(((AccountDetails)context.getAuthentication().getPrincipal()).getAccount());
+        }
+    }
+    private String getCurrentAccountUsername() {
+        SecurityContext context = SecurityContextHolder.getContext();
+        if (context.getAuthentication() instanceof AnonymousAuthenticationToken) {
+            return StringUtils.isNotBlank(RequestContextHolder.currentRequestAttributes().getSessionId()) ? "_" + RequestContextHolder.currentRequestAttributes().getSessionId() : null;
+        } else {
+            return ((AccountDetails)context.getAuthentication().getPrincipal()).getAccount().getUsername();
+        }
+    }
+
+    @GetMapping("/hi")
+    public String hi() {
+        return "hi!";
+    }
+
+    @GetMapping(path = "/auth/profile")
+    public AccountDto getUserProfile() {
+        return new AccountDto(accountService.findByUsername(getCurrentAccountUsername()).orElse(null));
+    }
+
+    @GetMapping("/persons")
+    public List<Person> getPersonList(HttpSession session, @RequestParam(name="schema_id", required = false) Long schemaId) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        if (context.getAuthentication() instanceof AnonymousAuthenticationToken) {
+            System.out.println("sessionId: " + session.getId());
+            // TODO Before create schema for anonymous user
+            return new ArrayList<>();
+
+        } else {
+            final Project project = projectService.findById(schemaId).orElse(null);
+            if (project != null && project.getAccount().getId() == ((AccountDetails)context.getAuthentication().getPrincipal()).getAccount().getId()) {
+                return personService.findByProjectId(schemaId);
+            } else {
+                // TODO Schema is not belong user
+                return new ArrayList<>();
+            }
+        }
+
+    }
+    @GetMapping("/projects")
+    public List<Project> getProjectList() {
+            return projectService.findAllByAccountIs(getCurrentAccount().orElse(null));
+    }
+    @PostMapping(path = "/projects", consumes = "application/json")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void addProject(@RequestBody Project project) {
+        project.setAccount(getCurrentAccount().orElse(null));
+        try {
+            projectService.add(project);
+        } catch (AlreadyExistsException e) {
+            System.out.println("addProject error: " + e.getMessage());
+        }
+    }
+    @PostMapping(path = "/persons", consumes = "application/json")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void addPerson(@RequestBody Person person, @CookieValue("APPSESSION") String cookie) {
+        System.out.println("APPSESSION: " + cookie);
+        personService.add(person);
+    }
+
+}

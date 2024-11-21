@@ -9,16 +9,16 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
-public class AccountsDetails implements UserDetails {
+public class AccountDetails implements UserDetails {
     private final Account account;
 
-    public AccountsDetails(Account account) {
+    public AccountDetails(Account account) {
         this.account = account;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority(account.getAccountRole().name()));
+        return Collections.singletonList(new SimpleGrantedAuthority(account.getRole().name()));
     }
 
     @Override

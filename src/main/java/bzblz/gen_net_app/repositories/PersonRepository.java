@@ -7,8 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface PersonsRepository extends JpaRepository<Person, Integer> {
-    public List<Person> findByProjectId(Integer id);
-//    public List<Person> findBySchema_idIn(Collection<Integer> ids);
-
+public interface PersonRepository extends JpaRepository<Person, Long> {
+    public List<Person> findByProjectId(Long id);
 }

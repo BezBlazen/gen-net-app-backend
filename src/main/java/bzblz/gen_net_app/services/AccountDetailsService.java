@@ -1,8 +1,8 @@
 package bzblz.gen_net_app.services;
 
 import bzblz.gen_net_app.model.Account;
-import bzblz.gen_net_app.repositories.AccountsRepository;
-import bzblz.gen_net_app.security.AccountsDetails;
+import bzblz.gen_net_app.repositories.AccountRepository;
+import bzblz.gen_net_app.security.AccountDetails;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -11,19 +11,18 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-public class AccountsDetailsService implements UserDetailsService {
+public class AccountDetailsService implements UserDetailsService {
+    private final AccountRepository accountRepository;
 
-    private final AccountsRepository accountsRepository;
-
-    public AccountsDetailsService(AccountsRepository accountsRepository) {
-        this.accountsRepository = accountsRepository;
+    public AccountDetailsService(AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<Account> user = accountsRepository.findByUsername(username);
+        Optional<Account> user = accountRepository.findByUsername(username);
         if (user.isEmpty())
             throw new UsernameNotFoundException("User not found");
-        return new AccountsDetails(user.get());
+        return new AccountDetails(user.get());
     }
 }

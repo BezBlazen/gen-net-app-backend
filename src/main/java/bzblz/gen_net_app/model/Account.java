@@ -1,85 +1,86 @@
 package bzblz.gen_net_app.model;
 
+import bzblz.gen_net_app.dto.AccountSignInDto;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 @Entity
 @Table(name = "account")
 @Getter
 @Setter
-public class Account {
+public class Account implements Cloneable {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
-//    @NotEmpty(message = "Can't be empty")
-//    @Size(min = 6, max = 20, message = "Allowed length from 6 to 20")
-    @Column(name = "username")
+    @Size(min = 6, max = 64, message = "Length from 6 to 64")
+    @NotBlank(message = "Username required")
+    @Column(name = "username", nullable = false)
     private String username;
 
-//    @NotEmpty(message = "Can't be empty")
-//    @Size(min = 6, max = 64, message = "Allowed length from 6 to 64")
-    @Column(name = "password")
+    @Size(min = 6, max = 64, message = "Length from 6 to 64")
+    @NotBlank(message = "Password required")
+    @Column(name = "password", nullable = false)
     private String password;
 
-//    @NotNull
-//    @UserRolePattern(regexp = "ROLE_ADMIN|ROLE_USER")
-    @Column(name = "account_role")
-    @Enumerated(EnumType.STRING)
-    private AccountRole accountRole;
+    @Email
+    @Column(name = "email", unique = true)
+    private String email;
 
-    @OneToMany(mappedBy="account")
-    private List<Project> projects;
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private Date createdAt;
+
+    @Column(name = "role")
+    @Enumerated(EnumType.STRING)
+    private AccountRole role;
 
     public Account() {
     }
-
+    public Account(@NonNull AccountSignInDto accountSignInDto) {
+        this.username = accountSignInDto.getUsername();
+        this.password = accountSignInDto.getPassword();
+    }
     public Account(String username, String password) {
         this.username = username;
         this.password = password;
     }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
+    public Account(String username, String password, AccountRole role) {
         this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
         this.password = password;
+        this.role = role;
     }
 
-    public AccountRole getAccountRole() {
-        return accountRole;
-    }
-    public void setAccountRole(AccountRole accountRole) {
-        this.accountRole = accountRole;
-    }
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
-                ", accountRole='" + (accountRole != null ? accountRole.name() : null) + '\'' +
+                ", accountRole='" + (role != null ? role.name() : null) + '\'' +
                 '}';
+    }
+
+    @Override
+    public Account clone() {
+        try {
+            return (Account) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }

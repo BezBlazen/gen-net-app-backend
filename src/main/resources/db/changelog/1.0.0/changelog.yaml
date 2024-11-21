@@ -8,9 +8,3 @@ databaseChangeLog:
   - include:
       relativeToChangelogFile: true
       file: 2024-08-11-create-table-person.sql
-  - include:
-      relativeToChangelogFile: true
-      file: 2024-08-11-resize-account-username.sql
-  - include:
-      relativeToChangelogFile: true
-      file: 2024-08-12-change-constraint-on-delete-account.sql

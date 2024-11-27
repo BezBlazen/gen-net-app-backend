@@ -1,7 +1,6 @@
 package bzblz.gen_net_app.services;
 
 import bzblz.gen_net_app.dto.AccountSignInDto;
-import bzblz.gen_net_app.dto.AccountSignUpDto;
 import bzblz.gen_net_app.exceptions.AlreadyExistsException;
 import bzblz.gen_net_app.exceptions.AppException;
 import bzblz.gen_net_app.exceptions.UnexpectedRequestException;

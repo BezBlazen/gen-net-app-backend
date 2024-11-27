@@ -40,6 +40,7 @@ public class AccountService {
 
         return account;
     }
+    @Transactional
     public Account addAccount(@NonNull Account account) throws AlreadyExistsException, AppException {
         if (account.getRole() == null)
             throw new AppException("Account role undefined");

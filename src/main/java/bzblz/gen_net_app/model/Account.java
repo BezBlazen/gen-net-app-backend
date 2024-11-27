@@ -1,6 +1,7 @@
 package bzblz.gen_net_app.model;
 
 import bzblz.gen_net_app.dto.AccountSignInDto;
+import bzblz.gen_net_app.dto.AccountSignUpDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -50,6 +51,10 @@ public class Account implements Cloneable {
     private AccountRole role;
 
     public Account() {
+    }
+    public Account(@NonNull AccountSignUpDto accountSignUpDto) {
+        this.username = accountSignUpDto.getUsername();
+        this.password = accountSignUpDto.getPassword();
     }
     public Account(@NonNull AccountSignInDto accountSignInDto) {
         this.username = accountSignInDto.getUsername();

@@ -1,5 +1,6 @@
 package bzblz.gen_net_app.services;
 
+import bzblz.gen_net_app.controllers.ApiController;
 import bzblz.gen_net_app.dto.AccountSignInDto;
 import bzblz.gen_net_app.exceptions.AlreadyExistsException;
 import bzblz.gen_net_app.exceptions.AppException;
@@ -80,8 +81,7 @@ public class AuthenticationService {
 
         Account account = new Account("~" + request.getSession().getId(), UUID.randomUUID().toString(), AccountRole.ROLE_SESSION);
         signUp(account.clone());
-        signIn(account, request, response);
-        return account;
+        return signIn(account, request, response);
     }
     public Optional<Account> account() {
         SecurityContext context = SecurityContextHolder.getContext();

@@ -10,6 +10,7 @@ import bzblz.gen_net_app.model.Account;
 import bzblz.gen_net_app.model.AccountRole;
 import bzblz.gen_net_app.services.AccountService;
 import bzblz.gen_net_app.services.AuthenticationService;
+import bzblz.gen_net_app.services.ProjectService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -35,6 +36,7 @@ public class AuthenticationController {
     private final UserDetailsService userDetailsService;
     private final AccountService accountService;
     private final AuthenticationService authenticationService;
+    private final ProjectService projectService;
     private final SecurityContextRepository securityContextRepository;
     private final AuthenticationManager authenticationManager;
     private final SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
@@ -73,6 +75,9 @@ public class AuthenticationController {
                                              HttpServletResponse response) throws UnexpectedRequestException, AppException, AlreadyExistsException {
         System.out.println(request.getSession().getId());
         final Account account = authenticationService.newSession(request, response);
+        System.out.println("account " + account);
+        System.out.println("account.getId() " + account.getId());
+        projectService.add(account, "New Project");
         return ResponseEntity.ok(new AccountDto(account));
     }
 }

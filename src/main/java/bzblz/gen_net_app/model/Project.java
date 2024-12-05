@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Cascade;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name = "project")
 @Getter

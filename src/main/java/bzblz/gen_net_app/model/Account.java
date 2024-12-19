@@ -72,7 +72,7 @@ public class Account implements Cloneable {
 
     @Override
     public String toString() {
-        return "User{" +
+        return "Account {" +
                 "id=" + id +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +

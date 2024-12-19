@@ -2,10 +2,13 @@ package bzblz.gen_net_app.controllers;
 
 import bzblz.gen_net_app.dto.AccountDto;
 import bzblz.gen_net_app.exceptions.AlreadyExistsException;
+import bzblz.gen_net_app.exceptions.AppException;
+import bzblz.gen_net_app.exceptions.UnexpectedRequestException;
 import bzblz.gen_net_app.model.Account;
 import bzblz.gen_net_app.model.Person;
 import bzblz.gen_net_app.model.Project;
 import bzblz.gen_net_app.security.AccountDetails;
+import bzblz.gen_net_app.services.AuthenticationService;
 import bzblz.gen_net_app.services.PersonService;
 import bzblz.gen_net_app.services.AccountService;
 import bzblz.gen_net_app.services.ProjectService;
@@ -36,6 +39,7 @@ public class ApiController {
     private final PersonService personService;
     private final ProjectService projectService;
     private final AccountService accountService;
+    private final AuthenticationController authenticationController;
 
     private Optional<Account> getCurrentAccount() {
         SecurityContext context = SecurityContextHolder.getContext();
@@ -90,13 +94,11 @@ public class ApiController {
     }
     @PostMapping(path = "/projects", consumes = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
-    public void addProject(@RequestBody Project project) {
-        project.setAccount(getCurrentAccount().orElse(null));
-        try {
-            projectService.add(project);
-        } catch (AlreadyExistsException e) {
-            System.out.println("addProject error: " + e.getMessage());
-        }
+    public Project addProject(@RequestBody Project project, HttpServletRequest request,
+                           HttpServletResponse response) throws AppException, UnexpectedRequestException, AlreadyExistsException {
+        final Optional<Account> optionalAccount = getCurrentAccount();
+        final Account account = optionalAccount.isPresent() ? optionalAccount.get() : authenticationController.newSession(request, response);
+        return projectService.add(account, "New Project");
     }
     @PostMapping(path = "/persons", consumes = "application/json")
     @ResponseStatus(HttpStatus.CREATED)

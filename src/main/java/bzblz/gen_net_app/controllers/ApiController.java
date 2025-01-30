@@ -98,7 +98,7 @@ public class ApiController {
                            HttpServletResponse response) throws AppException, UnexpectedRequestException, AlreadyExistsException {
         final Optional<Account> optionalAccount = getCurrentAccount();
         final Account account = optionalAccount.isPresent() ? optionalAccount.get() : authenticationController.newSession(request, response);
-        return projectService.add(account, "New Project");
+        return projectService.add(account, project.getTitle());
     }
     @PostMapping(path = "/persons", consumes = "application/json")
     @ResponseStatus(HttpStatus.CREATED)

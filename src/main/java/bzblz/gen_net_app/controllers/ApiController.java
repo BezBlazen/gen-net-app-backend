@@ -8,7 +8,6 @@ import bzblz.gen_net_app.model.Account;
 import bzblz.gen_net_app.model.Person;
 import bzblz.gen_net_app.model.Project;
 import bzblz.gen_net_app.security.AccountDetails;
-import bzblz.gen_net_app.services.AuthenticationService;
 import bzblz.gen_net_app.services.PersonService;
 import bzblz.gen_net_app.services.AccountService;
 import bzblz.gen_net_app.services.ProjectService;
@@ -22,7 +21,6 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 
@@ -68,7 +66,9 @@ public class ApiController {
     public AccountDto getUserProfile() {
         return new AccountDto(accountService.findByUsername(getCurrentAccountUsername()).orElse(null));
     }
-
+    //---------------------------------------
+    // Person
+    // get
     @GetMapping("/persons")
     public List<Person> getPersonList(HttpSession session, @RequestParam(name="schema_id", required = false) Long schemaId) {
         SecurityContext context = SecurityContextHolder.getContext();
@@ -88,23 +88,43 @@ public class ApiController {
         }
 
     }
-    @GetMapping("/projects")
-    public List<Project> getProjectList() {
-            return projectService.findAllByAccountIs(getCurrentAccount().orElse(null));
-    }
-    @PostMapping(path = "/projects", consumes = "application/json")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Project addProject(@RequestBody Project project, HttpServletRequest request,
-                           HttpServletResponse response) throws AppException, UnexpectedRequestException, AlreadyExistsException {
-        final Optional<Account> optionalAccount = getCurrentAccount();
-        final Account account = optionalAccount.isPresent() ? optionalAccount.get() : authenticationController.newSession(request, response);
-        return projectService.add(account, project.getTitle());
-    }
+
+    // post
     @PostMapping(path = "/persons", consumes = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
     public void addPerson(@RequestBody Person person, @CookieValue("APPSESSION") String cookie) {
         System.out.println("APPSESSION: " + cookie);
         personService.add(person);
     }
+    // Person
+    //---------------------------------------
+    // Project
+    // get
+    @GetMapping("/projects")
+    public List<Project> getProjectList() {
+            return projectService.findAllByAccountIs(getCurrentAccount().orElse(null));
+    }
+
+    // post
+    @PostMapping(path = "/projects", consumes = "application/json")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Project postProject(@RequestBody Project project, HttpServletRequest request,
+                               HttpServletResponse response) throws AppException, UnexpectedRequestException, AlreadyExistsException {
+        final Optional<Account> optionalAccount = getCurrentAccount();
+        final Account account = optionalAccount.isPresent() ? optionalAccount.get() : authenticationController.newSession(request, response);
+        return projectService.add(account, project.getTitle());
+    }
+
+    // put
+    @PutMapping(path = "/projects", consumes = "application/json")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Project putProject(@RequestBody Project project, HttpServletRequest request,
+                              HttpServletResponse response) throws AppException, UnexpectedRequestException, AlreadyExistsException {
+        final Account account = getCurrentAccount().orElseThrow();
+        project.setAccount(account);
+        return projectService.save(project);
+    }
+    // Project
+    //---------------------------------------
 
 }

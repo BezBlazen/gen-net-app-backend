@@ -45,4 +45,8 @@ public class ProjectService {
 
         return projectRepository.save(project);
     }
+    @Transactional
+    public Project save(Project project) {
+        return projectRepository.save(project);
+    }
 }

@@ -5,6 +5,7 @@ import bzblz.gen_net_app.model.Account;
 import bzblz.gen_net_app.model.Project;
 import bzblz.gen_net_app.repositories.ProjectRepository;
 import jakarta.persistence.EntityManager;
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,5 +49,12 @@ public class ProjectService {
     @Transactional
     public Project save(Project project) {
         return projectRepository.save(project);
+    }
+    @Transactional
+    public void delete(Integer projectId, Account account) throws NotFoundException {
+        final Optional<Project> project = projectRepository.findProjectByIdAndAccount(projectId, account);
+        if (project.isEmpty())
+            throw new NotFoundException(String.format("Project '%s' not found", projectId));
+        projectRepository.delete(project.get());
     }
 }

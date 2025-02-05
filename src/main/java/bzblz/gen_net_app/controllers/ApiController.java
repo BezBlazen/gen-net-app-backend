@@ -14,6 +14,7 @@ import bzblz.gen_net_app.services.ProjectService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import javassist.NotFoundException;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
@@ -119,10 +120,16 @@ public class ApiController {
     @PutMapping(path = "/projects", consumes = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
     public Project putProject(@RequestBody Project project, HttpServletRequest request,
-                              HttpServletResponse response) throws AppException, UnexpectedRequestException, AlreadyExistsException {
+                              HttpServletResponse response) {
         final Account account = getCurrentAccount().orElseThrow();
         project.setAccount(account);
         return projectService.save(project);
+    }
+    // delete
+    @DeleteMapping(path = "/projects/{projectId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteProject(@PathVariable Integer projectId) throws NotFoundException {
+        projectService.delete(projectId, getCurrentAccount().orElseThrow());
     }
     // Project
     //---------------------------------------

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,14 +25,13 @@ public class ProjectService {
         this.projectRepository = projectRepository;
         this.entityManager = entityManager;
     }
-
-    public List<Project> findAllByAccountIs(Account account) {
-        return projectRepository.findAllByAccountIs(account);
-    }
     public Optional<Project> findById(Long id) {
         return projectRepository.findById(id);
     }
     public List<Project> findAllByAccount(Account account) {
+        if (account == null) {
+            return new ArrayList<>();
+        }
         return projectRepository.findAllByAccount(account);
     }
     @Transactional

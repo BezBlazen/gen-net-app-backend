@@ -103,7 +103,7 @@ public class ApiController {
     // get
     @GetMapping("/projects")
     public List<Project> getProjectList() {
-            return projectService.findAllByAccountIs(getCurrentAccount().orElse(null));
+            return projectService.findAllByAccount(getCurrentAccount().orElse(null));
     }
 
     // post

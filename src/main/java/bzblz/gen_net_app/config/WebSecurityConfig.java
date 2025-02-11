@@ -65,6 +65,7 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors((cors) -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests((requests) -> requests
+                        .requestMatchers(HttpMethod.GET, "/api/v1/projects").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/projects").permitAll()
                         .requestMatchers("/api/v1/auth/new_session").anonymous()
                         .requestMatchers("/api/v1/auth/sign_in", "/api/v1/auth/sign_up").hasAnyRole("ANONYMOUS", "SESSION")

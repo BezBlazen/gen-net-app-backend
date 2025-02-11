@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
-    List<Project> findAllByAccountIs(Account account);
+//    List<Project> findAllByAccountIs(Account account);
     List<Project> findAllByAccount(Account account);
     Optional<Project> findProjectByIdAndAccount(Integer projectId, Account account);
 }

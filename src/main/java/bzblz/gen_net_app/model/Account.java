@@ -28,12 +28,12 @@ public class Account implements Cloneable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Size(min = 6, max = 64, message = "Length from 6 to 64")
+    @Size(min = 6, max = 64, message = "Username - Length from 6 to 64")
     @NotBlank(message = "Username required")
     @Column(name = "username", nullable = false)
     private String username;
 
-    @Size(min = 6, max = 64, message = "Length from 6 to 64")
+    @Size(min = 6, max = 64, message = "Password - Length from 6 to 64")
     @NotBlank(message = "Password required")
     @Column(name = "password", nullable = false)
     private String password;

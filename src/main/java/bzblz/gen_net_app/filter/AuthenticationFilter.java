@@ -16,9 +16,9 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        System.out.println("getRequestURI: " + request.getRequestURI());
-        System.out.println("getId: " + request.getSession().getId());
-        System.out.println("isNew" + request.getSession().isNew());
+//        System.out.println("getRequestURI: " + request.getRequestURI());
+//        System.out.println("getId: " + request.getSession().getId());
+//        System.out.println("isNew" + request.getSession().isNew());
 //        System.out.println("getCookies.length" + request.getCookies().length);
 
         filterChain.doFilter(request, response);

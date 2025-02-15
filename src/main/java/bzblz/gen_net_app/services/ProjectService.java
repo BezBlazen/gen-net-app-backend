@@ -57,4 +57,16 @@ public class ProjectService {
             throw new NotFoundException(String.format("Project '%s' not found", projectId));
         projectRepository.delete(project.get());
     }
+    @Transactional
+    public void deleteAll(Account account) {
+        projectRepository.deleteAll(findAllByAccount(account));
+    }
+    @Transactional
+    public void moveAll(Account from, Account to) {
+        final List<Project> projectList = findAllByAccount(from);
+        for (Project project : projectList) {
+            project.setAccount(to);
+            save(project);
+        }
+    }
 }

@@ -5,6 +5,7 @@ import bzblz.gen_net_app.exceptions.AlreadyExistsException;
 import bzblz.gen_net_app.exceptions.AppException;
 import bzblz.gen_net_app.exceptions.UnexpectedRequestException;
 import bzblz.gen_net_app.model.Account;
+import bzblz.gen_net_app.model.AccountRole;
 import bzblz.gen_net_app.model.Person;
 import bzblz.gen_net_app.model.Project;
 import bzblz.gen_net_app.security.AccountDetails;
@@ -28,6 +29,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -130,6 +132,26 @@ public class ApiController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteProject(@PathVariable Integer projectId) throws NotFoundException {
         projectService.delete(projectId, getCurrentAccount().orElseThrow());
+    }
+    // get tmp projects
+    @GetMapping("/projects/tmp")
+    public List<Project> getTmpProjectList(HttpServletRequest request) {
+        Account sessionAccount = accountService.findByUsername("~" + request.getSession().getId()).orElse(null);
+        return sessionAccount == null ? new ArrayList<>() : projectService.findAllByAccount(sessionAccount);
+    }
+    // put tmp projects
+    @PutMapping("/projects/tmp")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void putTmpProjectList(HttpServletRequest request) {
+        Account sessionAccount = accountService.findByUsername("~" + request.getSession().getId()).orElse(null);
+        projectService.moveAll(sessionAccount, getCurrentAccount().orElseThrow());
+    }
+    // delete tmp projects
+    @DeleteMapping("/projects/tmp")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteTmpProjectList(HttpServletRequest request) {
+        Account sessionAccount = accountService.findByUsername("~" + request.getSession().getId()).orElse(null);
+        projectService.deleteAll(sessionAccount);
     }
     // Project
     //---------------------------------------

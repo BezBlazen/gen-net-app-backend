@@ -2,6 +2,7 @@ package bzblz.gen_net_app.config;
 
 import bzblz.gen_net_app.filter.AuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.session.DefaultCookieSerializerCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;

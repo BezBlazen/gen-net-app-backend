@@ -1,7 +1,9 @@
 package bzblz.gen_net_app.services;
 
 import bzblz.gen_net_app.exceptions.AlreadyExistsException;
+import bzblz.gen_net_app.exceptions.AppException;
 import bzblz.gen_net_app.model.Account;
+import bzblz.gen_net_app.model.AccountRole;
 import bzblz.gen_net_app.model.Project;
 import bzblz.gen_net_app.repositories.ProjectRepository;
 import jakarta.persistence.EntityManager;
@@ -35,7 +37,10 @@ public class ProjectService {
         return projectRepository.findAllByAccount(account);
     }
     @Transactional
-    public Project add(Account account, String title) {
+    public Project add(Account account, String title) throws AppException {
+        if (account.getRole() == AccountRole.ROLE_SESSION && !projectRepository.findAllByAccount(account).isEmpty()) {
+            throw new AppException("Log in to create a new project");
+        }
         final Project project = new Project(title, account);
         return projectRepository.save(project);
     }

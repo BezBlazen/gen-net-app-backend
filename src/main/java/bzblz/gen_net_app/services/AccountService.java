@@ -29,7 +29,7 @@ public class AccountService {
     }
 
     @Transactional
-    public Account addAccountWithRoleUser(@NonNull Account account) throws AlreadyExistsException {
+    public Account addAccountWithRoleUser(@NonNull Account account) throws AppException, AlreadyExistsException {
         if (accountRepository.findByUsername(account.getUsername()).isPresent())
             throw new AlreadyExistsException(String.format("Account '%s' already exist", account.getUsername()));
 
@@ -50,20 +50,20 @@ public class AccountService {
         accountRepository.save(account);
         return account;
     }
-    @Transactional
-    public Account ensureSessionAccount(String sessionId) {
-        final String sessionAccountName = StringUtils.isNotBlank(sessionId) ? "_" + sessionId : null;
-
-        if (sessionAccountName == null || !accountRepository.findByUsername(sessionAccountName).isEmpty())
-            return null;
-
-        final Account sessionAccount = new Account(sessionAccountName, UUID.randomUUID().toString());
-        sessionAccount.setRole(AccountRole.ROLE_SESSION);
-        accountRepository.save(sessionAccount);
-        projectService.add(sessionAccount, "Default");
-
-        return sessionAccount;
-    }
+//    @Transactional
+//    public Account ensureSessionAccount(String sessionId) {
+//        final String sessionAccountName = StringUtils.isNotBlank(sessionId) ? "_" + sessionId : null;
+//
+//        if (sessionAccountName == null || !accountRepository.findByUsername(sessionAccountName).isEmpty())
+//            return null;
+//
+//        final Account sessionAccount = new Account(sessionAccountName, UUID.randomUUID().toString());
+//        sessionAccount.setRole(AccountRole.ROLE_SESSION);
+//        accountRepository.save(sessionAccount);
+//        projectService.add(sessionAccount, "Default");
+//
+//        return sessionAccount;
+//    }
     public Optional<Account> findByUsername(String username) {
         System.out.println("findByUsername: " + username);
         return accountRepository.findByUsername(username);

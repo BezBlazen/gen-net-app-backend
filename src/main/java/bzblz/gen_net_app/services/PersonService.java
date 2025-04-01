@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
@@ -20,13 +21,13 @@ public class PersonService {
     public PersonService(PersonRepository personRepository) {
         this.personRepository = personRepository;
     }
-    public List<Person> findByProjectId(Long id) {
+    public List<Person> findByProjectId(UUID id) {
         return personRepository.findByProjectId(id);
     }
     public List<Person> findAll() {
         return personRepository.findAll();
     }
-    public Person findOne(Long id) {
+    public Person findOne(UUID id) {
         Optional<Person> person = personRepository.findById(id);
         return person.orElse(null);
     }
@@ -36,12 +37,12 @@ public class PersonService {
     }
 
     @Transactional
-    public void update(Long id, Person person) {
+    public void update(UUID id, Person person) {
         person.setId(id);
         personRepository.save(person);
     }
     @Transactional
-    public void delete(Long id) {
+    public void delete(UUID id) {
         personRepository.deleteById(id);
     }
 

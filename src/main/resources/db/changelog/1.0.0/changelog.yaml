@@ -1,10 +1,7 @@
 databaseChangeLog:
   - include:
       relativeToChangelogFile: true
-      file: 2024-08-11-create-table-account.sql
+      file: 2025-03-30-create-collection-accounts.json
   - include:
       relativeToChangelogFile: true
-      file: 2024-08-11-create-table-project.sql
-  - include:
-      relativeToChangelogFile: true
-      file: 2024-08-11-create-table-person.sql
+      file: 2025-04-01-create-collection-projects.json

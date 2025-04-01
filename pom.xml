@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.3.2</version>
+		<version>3.4.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>bzblz</groupId>
@@ -32,14 +32,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-thymeleaf</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
 		<dependency>
@@ -50,32 +42,19 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
-		<!-- Layouts -->
-		<dependency>
-			<groupId>nz.net.ultraq.thymeleaf</groupId>
-			<artifactId>thymeleaf-layout-dialect</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<scope>runtime</scope>
-		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-mongodb</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.modelmapper</groupId>
 			<artifactId>modelmapper</artifactId>
 			<version>3.2.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.auth0</groupId>
-			<artifactId>java-jwt</artifactId>
-			<version>4.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -83,24 +62,38 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
+			<groupId>javassist</groupId>
+			<artifactId>javassist</artifactId>
+			<version>3.12.1.GA</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mongodb</groupId>
+			<artifactId>mongodb-driver-core</artifactId>
+			<version>5.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mongodb</groupId>
+			<artifactId>mongodb-driver-sync</artifactId>
+			<version>5.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mongodb</groupId>
+			<artifactId>bson</artifactId>
+			<version>5.4.0</version>
+		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.liquibase</groupId>-->
+<!--			<artifactId>liquibase-core</artifactId>-->
+<!--		</dependency>-->
+		<dependency>
+			<groupId>org.liquibase.ext</groupId>
+			<artifactId>liquibase-mongodb</artifactId>
+			<version>4.31.1</version>
+		</dependency>
+		<dependency>
 			<groupId>org.liquibase</groupId>
-			<artifactId>liquibase-core</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-api</artifactId>
-			<version>0.11.5</version>
-		</dependency>
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-impl</artifactId>
-			<version>0.11.5</version>
-		</dependency>
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-jackson</artifactId>
-			<version>0.11.5</version>
+			<artifactId>liquibase-maven-plugin</artifactId>
+			<version>4.31.1</version>
 		</dependency>
 	</dependencies>
 
@@ -109,9 +102,39 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>3.2.5</version>
+				<version>3.4.4</version>
+				<configuration>
+					<jvmArguments>
+						-Dspring.data.mongodb.uri=${db.uri}
+					</jvmArguments>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.liquibase</groupId>
+				<artifactId>liquibase-maven-plugin</artifactId>
+				<version>${liquibase.version}</version>
+				<configuration>
+					<url>${db.uri}</url>
+					<changeLogFile>db/changelog/db.changelog-master.yaml</changeLogFile>
+					<verbose>${profile.verbose}</verbose>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
-
+	<profiles>
+		<!-- Development settings, -Denv=local -->
+		<profile>
+			<id>local</id>
+			<activation>
+				<property>
+					<name>env</name>
+					<value>local</value>
+				</property>
+			</activation>
+			<properties>
+				<db.uri>mongodb://localhost:27017/gen-net-app</db.uri>
+				<profile.verbose>true</profile.verbose>
+			</properties>
+		</profile>
+	</profiles>
 </project>

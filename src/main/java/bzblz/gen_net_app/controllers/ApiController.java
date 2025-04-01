@@ -51,6 +51,9 @@ public class ApiController {
             return Optional.of(((AccountDetails)context.getAuthentication().getPrincipal()).getAccount());
         }
     }
+    private Optional<UUID> getCurrentAccountId() {
+        return getCurrentAccount().map(Account::getId);
+    }
     private String getCurrentAccountUsername() {
         SecurityContext context = SecurityContextHolder.getContext();
         if (context.getAuthentication() instanceof AnonymousAuthenticationToken) {
@@ -58,11 +61,6 @@ public class ApiController {
         } else {
             return ((AccountDetails)context.getAuthentication().getPrincipal()).getAccount().getUsername();
         }
-    }
-
-    @GetMapping("/hi")
-    public String hi() {
-        return "hi!";
     }
 
     @GetMapping(path = "/auth/profile")
@@ -73,7 +71,7 @@ public class ApiController {
     // Person
     // get
     @GetMapping("/persons")
-    public List<Person> getPersonList(HttpSession session, @RequestParam(name="schema_id", required = false) Long schemaId) {
+    public List<Person> getPersonList(HttpSession session, @RequestParam(name="project_id", required = false) UUID projectId) {
         SecurityContext context = SecurityContextHolder.getContext();
         if (context.getAuthentication() instanceof AnonymousAuthenticationToken) {
             System.out.println("sessionId: " + session.getId());
@@ -81,9 +79,9 @@ public class ApiController {
             return new ArrayList<>();
 
         } else {
-            final Project project = projectService.findById(schemaId).orElse(null);
-            if (project != null && project.getAccount().getId() == ((AccountDetails)context.getAuthentication().getPrincipal()).getAccount().getId()) {
-                return personService.findByProjectId(schemaId);
+            final Project project = projectService.findById(projectId).orElse(null);
+            if (project != null && project.getAccountId() == ((AccountDetails)context.getAuthentication().getPrincipal()).getAccount().getId()) {
+                return personService.findByProjectId(projectId);
             } else {
                 // TODO Schema is not belong user
                 return new ArrayList<>();
@@ -105,7 +103,7 @@ public class ApiController {
     // get
     @GetMapping("/projects")
     public List<Project> getProjectList() {
-            return projectService.findAllByAccount(getCurrentAccount().orElse(null));
+        return projectService.findAllByAccountId(getCurrentAccountId().orElse(null));
     }
 
     // post
@@ -115,7 +113,9 @@ public class ApiController {
                                HttpServletResponse response) throws AppException, UnexpectedRequestException, AlreadyExistsException {
         final Optional<Account> optionalAccount = getCurrentAccount();
         final Account account = optionalAccount.isPresent() ? optionalAccount.get() : authenticationController.newSession(request, response);
-        return projectService.add(account, project.getTitle());
+        if (account.getRole() == AccountRole.ROLE_SESSION && !projectService.findAllByAccountId(account.getId()).isEmpty())
+            throw new AppException("Log in to create a new project");
+        return projectService.add(account.getId(), project.getTitle());
     }
 
     // put
@@ -124,34 +124,36 @@ public class ApiController {
     public Project putProject(@RequestBody Project project, HttpServletRequest request,
                               HttpServletResponse response) {
         final Account account = getCurrentAccount().orElseThrow();
-        project.setAccount(account);
+        project.setAccountId(account.getId());
         return projectService.save(project);
     }
     // delete
     @DeleteMapping(path = "/projects/{projectId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteProject(@PathVariable Integer projectId) throws NotFoundException {
-        projectService.delete(projectId, getCurrentAccount().orElseThrow());
+    public void deleteProject(@PathVariable UUID projectId) throws NotFoundException {
+        projectService.delete(projectId, getCurrentAccountId().orElseThrow());
     }
     // get tmp projects
     @GetMapping("/projects/tmp")
     public List<Project> getTmpProjectList(HttpServletRequest request) {
         Account sessionAccount = accountService.findByUsername("~" + request.getSession().getId()).orElse(null);
-        return sessionAccount == null ? new ArrayList<>() : projectService.findAllByAccount(sessionAccount);
+        return sessionAccount == null ? new ArrayList<>() : projectService.findAllByAccountId(sessionAccount.getId());
     }
     // put tmp projects
     @PutMapping("/projects/tmp")
     @ResponseStatus(HttpStatus.CREATED)
     public void putTmpProjectList(HttpServletRequest request) {
         Account sessionAccount = accountService.findByUsername("~" + request.getSession().getId()).orElse(null);
-        projectService.moveAll(sessionAccount, getCurrentAccount().orElseThrow());
+        if (sessionAccount != null)
+            projectService.moveAll(sessionAccount.getId(), getCurrentAccountId().orElseThrow());
     }
     // delete tmp projects
     @DeleteMapping("/projects/tmp")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTmpProjectList(HttpServletRequest request) {
         Account sessionAccount = accountService.findByUsername("~" + request.getSession().getId()).orElse(null);
-        projectService.deleteAll(sessionAccount);
+        if (sessionAccount != null)
+            projectService.deleteAll(sessionAccount.getId());
     }
     // Project
     //---------------------------------------

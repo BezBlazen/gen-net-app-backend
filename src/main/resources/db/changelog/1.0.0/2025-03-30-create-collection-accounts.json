@@ -1,0 +1,14 @@
+{ "databaseChangeLog": [
+  {
+    "changeSet": {
+      "id": "2025-03-30-create-collection-accounts",
+      "author": "bzblz",
+      "changes": [
+        {
+          "createCollection": {
+            "collectionName": "accounts"
+          }
+        }]
+    }
+  }
+]}

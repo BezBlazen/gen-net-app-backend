@@ -14,15 +14,3 @@ spring:
   data:
     rest:
       base-path: /api
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/gen-net-app
-    username: postgres
-    password: postgres
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        show_sql: true

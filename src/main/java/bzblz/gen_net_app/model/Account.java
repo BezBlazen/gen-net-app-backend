@@ -2,52 +2,35 @@ package bzblz.gen_net_app.model;
 
 import bzblz.gen_net_app.dto.AccountSignInDto;
 import bzblz.gen_net_app.dto.AccountSignUpDto;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NonNull;
-import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.Collection;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
-import java.util.List;
+import java.util.UUID;
 
-@Entity
-@Table(name = "account")
-@Getter
-@Setter
+@Document(collection = "accounts")
+@Data
 public class Account implements Cloneable {
     @Id
-    @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedUUID
+    private UUID id;
 
     @Size(min = 6, max = 64, message = "Username - Length from 6 to 64")
     @NotBlank(message = "Username required")
-    @Column(name = "username", nullable = false)
     private String username;
 
     @Size(min = 6, max = 64, message = "Password - Length from 6 to 64")
     @NotBlank(message = "Password required")
-    @Column(name = "password", nullable = false)
     private String password;
 
     @Email
-    @Column(name = "email", unique = true)
     private String email;
 
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
     private Date createdAt;
-
-    @Column(name = "role")
-    @Enumerated(EnumType.STRING)
     private AccountRole role;
 
     public Account() {
@@ -89,3 +72,4 @@ public class Account implements Cloneable {
         }
     }
 }
+

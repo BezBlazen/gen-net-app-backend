@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -36,7 +37,7 @@ public class AccountService {
         account.setRole(AccountRole.ROLE_USER);
         account.setPassword(passwordEncoder.encode(account.getPassword()));
         accountRepository.save(account);
-        projectService.add(account, "Default");
+        projectService.add(account.getId(), "Default");
 
         return account;
     }
@@ -67,5 +68,14 @@ public class AccountService {
     public Optional<Account> findByUsername(String username) {
         System.out.println("findByUsername: " + username);
         return accountRepository.findByUsername(username);
+    }
+    public List<Account> findAll() {
+        System.out.println("findAll: ");
+        return accountRepository.findAll();
+    }
+    public Account add(Account a) {
+        System.out.println("add: ");
+        accountRepository.save(a);
+        return a;
     }
 }

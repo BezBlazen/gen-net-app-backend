@@ -32,8 +32,13 @@ public class PersonService {
         return person.orElse(null);
     }
     @Transactional
-    public void add(Person person) {
-        personRepository.save(person);
+    public Person add(Person person) {
+        return personRepository.save(person);
+    }
+
+    @Transactional
+    public Person save(Person person) {
+        return personRepository.save(person);
     }
 
     @Transactional

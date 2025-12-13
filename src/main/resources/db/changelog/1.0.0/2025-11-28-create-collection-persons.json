@@ -1,0 +1,14 @@
+{ "databaseChangeLog": [
+  {
+    "changeSet": {
+      "id": "2025-11-28-create-collection-persons",
+      "author": "bzblz",
+      "changes": [
+        {
+          "createCollection": {
+            "collectionName": "persons"
+          }
+        }]
+    }
+  }
+]}

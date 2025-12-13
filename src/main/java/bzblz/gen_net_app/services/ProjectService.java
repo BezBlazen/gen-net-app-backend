@@ -28,6 +28,9 @@ public class ProjectService {
     public Optional<Project> findById(UUID id) {
         return projectRepository.findById(id);
     }
+    public Optional<Project> findProjectByIdAndAccountId(UUID id, UUID accountId) {
+        return projectRepository.findProjectByIdAndAccountId(id, accountId);
+    }
     public List<Project> findAllByAccountId(UUID accountId) {
         if (accountId == null) {
             return new ArrayList<>();

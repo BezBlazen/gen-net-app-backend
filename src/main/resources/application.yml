@@ -14,3 +14,11 @@ spring:
   data:
     rest:
       base-path: /api
+springdoc:
+  api-docs:
+    path: /docs/api-docs
+  swagger-ui:
+    path: /docs/swagger.html
+    disable-swagger-default-url: true
+    operations-sorter: alpha
+    tags-sorter: alpha

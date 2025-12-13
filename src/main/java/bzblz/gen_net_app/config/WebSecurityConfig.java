@@ -68,6 +68,11 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers(HttpMethod.GET, "/api/v1/projects").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/projects").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/persons").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/persons").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/docs/**").permitAll()
+//                        .requestMatchers(HttpMethod.GET, "/docs/swagger-ui/*").permitAll()
+//                        .requestMatchers(HttpMethod.GET, "/v3/api-docs.yaml").permitAll()
                         .requestMatchers("/api/v1/auth/new_session").anonymous()
                         .requestMatchers("/api/v1/auth/sign_in", "/api/v1/auth/sign_up").hasAnyRole("ANONYMOUS", "SESSION")
                         .anyRequest().authenticated()

@@ -72,30 +72,49 @@ public class ApiController {
     // get
     @GetMapping("/persons")
     public List<Person> getPersonList(HttpSession session, @RequestParam(name="project_id", required = false) UUID projectId) {
+        System.out.println("getPersonList");
         SecurityContext context = SecurityContextHolder.getContext();
         if (context.getAuthentication() instanceof AnonymousAuthenticationToken) {
-            System.out.println("sessionId: " + session.getId());
             // TODO Before create schema for anonymous user
             return new ArrayList<>();
 
         } else {
             final Project project = projectService.findById(projectId).orElse(null);
-            if (project != null && project.getAccountId() == ((AccountDetails)context.getAuthentication().getPrincipal()).getAccount().getId()) {
+            if (project != null && project.getAccountId().equals(((AccountDetails)context.getAuthentication().getPrincipal()).getAccount().getId())) {
                 return personService.findByProjectId(projectId);
             } else {
                 // TODO Schema is not belong user
                 return new ArrayList<>();
             }
         }
-
     }
-
+    @GetMapping("/persons/{personId}")
+    public Person getPerson(@PathVariable UUID personId) throws UnexpectedRequestException, NotFoundException {
+        System.out.println("getPerson");
+        final Person person = personService.findOne(personId);
+        checkProject(person.getProjectId());
+        return person;
+    }
     // post
     @PostMapping(path = "/persons", consumes = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
-    public void addPerson(@RequestBody Person person, @CookieValue("APPSESSION") String cookie) {
-        System.out.println("APPSESSION: " + cookie);
-        personService.add(person);
+    public Person addPerson(@RequestBody Person person) throws  UnexpectedRequestException {
+        checkProject(person.getProjectId());
+        return personService.add(person);
+    }
+    // put
+    @PutMapping(path = "/persons", consumes = "application/json")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Person putPerson(@RequestBody Person person) throws UnexpectedRequestException {
+        checkProject(person.getProjectId());
+        return personService.save(person);
+    }
+    // delete
+    @DeleteMapping(path = "/persons/{personId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deletePerson(@PathVariable UUID personId) throws UnexpectedRequestException, NotFoundException {
+        checkProject(personService.findByProjectId(personId).get(0).getProjectId());
+        personService.delete(personId);
     }
     // Person
     //---------------------------------------
@@ -114,7 +133,7 @@ public class ApiController {
         final Optional<Account> optionalAccount = getCurrentAccount();
         final Account account = optionalAccount.isPresent() ? optionalAccount.get() : authenticationController.newSession(request, response);
         if (account.getRole() == AccountRole.ROLE_SESSION && !projectService.findAllByAccountId(account.getId()).isEmpty())
-            throw new AppException("Log in to create a new project");
+            throw new AppException("Log in to create a more projects");
         return projectService.add(account.getId(), project.getTitle());
     }
 
@@ -154,6 +173,14 @@ public class ApiController {
         Account sessionAccount = accountService.findByUsername("~" + request.getSession().getId()).orElse(null);
         if (sessionAccount != null)
             projectService.deleteAll(sessionAccount.getId());
+    }
+    // check project
+    public void checkProject(UUID projectId) throws UnexpectedRequestException {
+        final Optional<Account> optionalAccount = getCurrentAccount();
+        final Optional<Project> optionalProject = projectService.findById(projectId);
+        if (optionalAccount.isEmpty() || optionalProject.isEmpty() || !optionalProject.get().getAccountId().equals(optionalAccount.get().getId())) {
+            throw new UnexpectedRequestException("Project not found");
+        }
     }
     // Project
     //---------------------------------------

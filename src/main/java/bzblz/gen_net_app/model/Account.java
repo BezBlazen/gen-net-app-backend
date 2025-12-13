@@ -7,7 +7,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NonNull;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
 import java.util.UUID;
@@ -18,6 +20,12 @@ public class Account implements Cloneable {
     @Id
     @GeneratedUUID
     private UUID id;
+
+    @Version
+    private Integer version;
+
+    @CreatedDate
+    private Date createdAt;
 
     @Size(min = 6, max = 64, message = "Username - Length from 6 to 64")
     @NotBlank(message = "Username required")
@@ -30,7 +38,6 @@ public class Account implements Cloneable {
     @Email
     private String email;
 
-    private Date createdAt;
     private AccountRole role;
 
     public Account() {

@@ -52,7 +52,6 @@ public class AuthenticationController {
 
     @GetMapping("/account")
     public ResponseEntity<AccountDto> account(HttpServletRequest request) {
-        System.out.println(request.getSession().getId());
         Optional<Account> account = authenticationService.account();
         return account.map(value -> ResponseEntity.ok(new AccountDto(value))).orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -60,25 +59,17 @@ public class AuthenticationController {
     public ResponseEntity<AccountDto> signIn(@RequestBody AccountSignInDto accountSignInDto,
                                              HttpServletRequest request,
                                              HttpServletResponse response) {
-        System.out.println(request.getSession().getId());
         final Account account = authenticationService.signIn(new Account(accountSignInDto), request, response);
         return ResponseEntity.ok(new AccountDto(account));
     }
     @PostMapping("/sign_out")
     public ResponseEntity<?> signOut(Authentication authentication, HttpServletRequest request, HttpServletResponse response) {
-        System.out.println(request.getSession().getId());
         authenticationService.signOut(authentication, request, response);
         return ResponseEntity.ok().build();
     }
 //    @PostMapping("/new_session")
     public Account newSession(HttpServletRequest request,
                                              HttpServletResponse response) throws UnexpectedRequestException, AppException, AlreadyExistsException {
-        System.out.println("newSession");
-//        final Account account = authenticationService.newSession(request, response);
-//        System.out.println("account " + account);
-//        System.out.println("account.getId() " + account.getId());
-//        projectService.add(account, "New Project");
-//        return ResponseEntity.ok(new AccountDto(account));
         return authenticationService.newSession(request, response);
     }
 }

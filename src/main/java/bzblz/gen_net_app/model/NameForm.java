@@ -6,7 +6,7 @@ import java.util.List;
 
 @Data
 public class NameForm {
-    private Boolean preferred = false;
+//    private Boolean preferred = false;
     private String fullText;
     private List<NamePart> parts;
 }

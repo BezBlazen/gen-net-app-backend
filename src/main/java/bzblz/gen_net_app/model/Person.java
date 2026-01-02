@@ -30,6 +30,7 @@ public class Person {
     @CreatedDate
     private Date createdAt;
 
+    private String Rid;
     private Gender gender;
     private List<Name> names;
 }

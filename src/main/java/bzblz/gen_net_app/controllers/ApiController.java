@@ -113,7 +113,7 @@ public class ApiController {
     @DeleteMapping(path = "/persons/{personId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePerson(@PathVariable UUID personId) throws UnexpectedRequestException, NotFoundException {
-        checkProject(personService.findByProjectId(personId).get(0).getProjectId());
+        checkProject(personService.findOne(personId).getProjectId());
         personService.delete(personId);
     }
     // Person
